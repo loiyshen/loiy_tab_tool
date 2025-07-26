@@ -1,4 +1,4 @@
-// 支持的标签组颜色
+// Chrome支持的标签组颜色
 const CHROME_COLORS = {
     grey: [218, 220, 224],
     blue: [138, 180, 248],
@@ -10,35 +10,9 @@ const CHROME_COLORS = {
     cyan: [128, 216, 208],
 };
 
-// 将十六进制颜色转换为RGB数组
-function hexToRgb(hex) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-}
-
-// 计算两种RGB颜色之间的欧氏距离
-function colorDistance(rgb1, rgb2) {
-    const [r1, g1, b1] = rgb1;
-    const [r2, g2, b2] = rgb2;
-    return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2));
-}
-
-// 找到最接近的Chrome预设颜色
-function findClosestChromeColor(hexColor) {
-    const targetRgb = hexToRgb(hexColor);
-    let closestColor = 'grey';
-    let minDistance = Infinity;
-
-    for (const color in CHROME_COLORS) {
-        const distance = colorDistance(targetRgb, CHROME_COLORS[color]);
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestColor = color;
-        }
-    }
-    return closestColor;
+// 验证颜色是否为有效的Chrome颜色
+function isValidChromeColor(color) {
+    return CHROME_COLORS.hasOwnProperty(color);
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -79,7 +53,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
             // 设置组的标题和颜色
             await chrome.tabGroups.update(groupId, {
                 title: groupSetting.groupName,
-                color: findClosestChromeColor(groupSetting.color)
+                color: isValidChromeColor(groupSetting.color) ? groupSetting.color : 'grey'
             });
         }
     }

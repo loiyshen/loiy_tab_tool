@@ -61,6 +61,11 @@ h2 {
     padding: 2px 8px;
     height: 36px;
     width: 338px;
+    cursor: pointer;
+}
+
+.input-field.input-color option {
+    padding: 8px;
 }
 
 .button-group {
@@ -100,7 +105,7 @@ button:hover {
     flex-grow: 1;
     max-height: none;
     overflow-y: auto;
-    background-color: #DDDDDD;
+    background-color: #AFAFAF;
     padding: 10px;
     border-radius: 8px;
 }

@@ -1,10 +1,49 @@
 let currentEditItem = null; // 用于跟踪当前正在编辑的项
 
+// Chrome支持的标签组颜色映射
+const CHROME_COLORS = {
+    grey: '#DADCE0',
+    blue: '#8AB4F8',
+    red: '#F28B82',
+    yellow: '#FCD174',
+    green: '#81C995',
+    pink: '#FDA5CB',
+    purple: '#D3A0FF',
+    cyan: '#80D8D0'
+};
+
+// 颜色名称映射
+const COLOR_NAMES = {
+    grey: '灰色',
+    blue: '蓝色',
+    red: '红色',
+    yellow: '黄色',
+    green: '绿色',
+    pink: '粉色',
+    purple: '紫色',
+    cyan: '青色'
+};
+
 function normalizeColor(color) {
+    // 如果是Chrome颜色名称，返回对应的十六进制颜色
+    if (CHROME_COLORS[color]) {
+        return CHROME_COLORS[color];
+    }
+    // 如果是十六进制颜色，直接返回
     if (typeof color === 'string' && color.startsWith('#')) {
         return color;
     }
-    return '#999999'; // 如果颜色格式不正确，则默认为灰色
+    return CHROME_COLORS.grey; // 默认返回灰色
+}
+
+function getChromeColorName(hexColor) {
+    // 根据十六进制颜色找到对应的Chrome颜色名称
+    for (const [name, hex] of Object.entries(CHROME_COLORS)) {
+        if (hex.toLowerCase() === hexColor.toLowerCase()) {
+            return name;
+        }
+    }
+    return 'grey'; // 默认返回灰色
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 清空输入框
         document.getElementById('domain').value = '';
         document.getElementById('groupName').value = '';
+        document.getElementById('groupColor').value = 'grey'; // 重置为默认颜色
     });
 
     document.getElementById('updateGroup').addEventListener('click', updateGroup);
@@ -81,7 +121,10 @@ function enterEditMode(item) {
 
     document.getElementById('domain').value = item.dataset.domain;
     document.getElementById('groupName').value = item.dataset.groupName;
-    document.getElementById('groupColor').value = item.dataset.color;
+    
+    // 将十六进制颜色转换为Chrome颜色名称
+    const chromeColorName = getChromeColorName(item.dataset.color);
+    document.getElementById('groupColor').value = chromeColorName;
 
     document.getElementById('addGroup').classList.add('hidden');
     document.getElementById('updateGroup').classList.remove('hidden');
@@ -96,7 +139,7 @@ function exitEditMode() {
 
     document.getElementById('domain').value = '';
     document.getElementById('groupName').value = '';
-    document.getElementById('groupColor').value = '#999999';
+    document.getElementById('groupColor').value = 'grey';
 
     document.getElementById('addGroup').classList.remove('hidden');
     document.getElementById('updateGroup').classList.add('hidden');
@@ -115,13 +158,16 @@ function updateGroup() {
         return;
     }
 
+    // 将Chrome颜色名称转换为十六进制颜色用于显示
+    const hexColor = normalizeColor(color);
+
     // 更新DOM元素的数据和外观
     currentEditItem.dataset.domain = domain;
     currentEditItem.dataset.groupName = groupName;
-    currentEditItem.dataset.color = color;
+    currentEditItem.dataset.color = hexColor;
 
-    currentEditItem.style.backgroundColor = color;
-    currentEditItem.style.color = getContrastColor(color);
+    currentEditItem.style.backgroundColor = hexColor;
+    currentEditItem.style.color = getContrastColor(hexColor);
 
     currentEditItem.querySelector('.domain').textContent = domain;
     currentEditItem.querySelector('.group-name').textContent = groupName;
@@ -132,10 +178,12 @@ function updateGroup() {
 function saveSettings() {
     const groups = [];
     document.querySelectorAll('.group-item').forEach(item => {
+        // 将十六进制颜色转换为Chrome颜色名称进行存储
+        const chromeColorName = getChromeColorName(item.dataset.color);
         groups.push({
             domain: item.dataset.domain,
             groupName: item.dataset.groupName,
-            color: item.dataset.color
+            color: chromeColorName
         });
     });
 
