@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LoiyTabTool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>芦艺标签页分组工具</h1>
+        <div id="groupSettings" class="group-form">
+            <div class="input-group">
+                <input type="text" id="domain" class="input-field" placeholder="输入域名 (例如: google.com)" />
+                <input type="text" id="groupName" class="input-field" placeholder="分组名称" />
+                <input type="color" id="groupColor" class="input-field input-color" value="#C00000">
+            </div>
+            <div class="button-group">
+                <button id="addGroup">添加</button>
+                <button id="updateGroup" class="hidden">更新</button>
+                <button id="cancelUpdate" class="hidden">取消</button>
+            </div>
+            <div class="tips">添加或更新后，需要点击【保存设置】按钮</div>
+        </div>
+        <h2>分组列表</h2>
+        <div id="groupList" class="group-list"></div>
+        <div id="message" class="message"></div>
+        <button id="saveSettings" class="save-button">保存设置</button>
+    </div>
+    <script src="side_panel.js"></script>
+</body>
+</html>

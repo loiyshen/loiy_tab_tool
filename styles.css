@@ -1,0 +1,182 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    width: 380px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 15px;
+}
+
+h1 {
+    margin: 10px auto;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    color: #000;
+}
+h2 {
+    margin: 10px auto 4px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+}
+
+.group-form {
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-field {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    height: 32px;
+    line-height: 32px;
+    width: 320px;
+}
+
+.input-field.input-color {
+    padding: 2px 8px;
+    height: 36px;
+    width: 338px;
+}
+
+.button-group {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+button {
+    padding: 8px 16px;
+    height: 48px;
+    width: 100%;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #303030;
+}
+
+.tips {
+    color: #AFAFAF;
+    text-align: center;
+    margin: 6px auto;
+}
+.group-list {
+    height: auto;
+    min-height: 100px;
+    flex-grow: 1;
+    max-height: none;
+    overflow-y: auto;
+    background-color: #DDDDDD;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    color: #000; /* 默认文字颜色 */
+}
+
+.group-item span {
+    text-align: left;
+    min-width: 40px;
+}
+
+.group-item .group-name {
+    min-width: 40px;
+}
+
+.group-item.editing {
+    border: 2px solid #2196F3;
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+}
+
+.item-buttons {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+    width: 40%;
+}
+
+.delete-btn {
+    background-color: rgba(211, 47, 47, 0.5);
+    color: inherit; /* 继承父元素的文字颜色 */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+    padding: 4px 4px;
+    flex-shrink: 0;
+    width: 45%;
+    height: 38px;
+}
+
+.delete-btn:hover {
+    background-color: rgba(211, 47, 47, 0.99);
+}
+
+.edit-btn {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 4px 4px;
+    flex-shrink: 0;
+    width: 45%;
+    height: 38px;
+}
+
+.save-button {
+    height: 48px;
+    margin-top: 15px;
+    background-color: rgba(0, 0, 0, 0.99);
+}
+
+.save-button:hover {
+    background-color: #303030;
+}
+
+.message {
+    color: #4CAF50;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
