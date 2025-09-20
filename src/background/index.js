@@ -1,5 +1,5 @@
 /** 颜色工具（前后端共享） */
-try { importScripts('shared/colors.js'); } catch (e) { /* no-op */ }
+try { importScripts('../shared/colors.js'); } catch (e) { /* no-op */ }
 
 // 域名匹配：完整匹配或右端以 .rule 结尾，避免 notexample.com 命中 example.com
 function matchesDomain(hostname, ruleDomain) {

@@ -174,4 +174,3 @@ function loadGroups() {
         }
     });
 }
-

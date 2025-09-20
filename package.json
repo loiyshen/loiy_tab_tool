@@ -1,0 +1,11 @@
+{
+  "name": "loiy-tab-tool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome 扩展：按域名自动分组标签页（Side Panel）",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "zip": "cd dist && zip -r ../release.zip ."
+  },
+  "devDependencies": {}
+}
