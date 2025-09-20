@@ -1,0 +1,7 @@
+{
+  "groups": [
+    { "domain": "google.com", "groupName": "Google", "color": "blue" },
+    { "domain": "github.com", "groupName": "GitHub", "color": "purple" },
+    { "domain": "youtube.com", "groupName": "YouTube", "color": "red" }
+  ]
+}

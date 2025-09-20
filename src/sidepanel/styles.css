@@ -29,11 +29,15 @@ h1 {
     color: #000;
 }
 h2 {
-    margin: 10px auto 4px;
+    margin: 10px auto;
     font-size: 16px;
     font-weight: bold;
     text-align: center;
     color: #333;
+}
+
+.group-form h2 {
+    margin: 0 auto 10px;
 }
 
 .group-form {
@@ -82,7 +86,7 @@ h2 {
     display: none;
 }
 
-button {
+.btn {
     padding: 8px 16px;
     height: 48px;
     width: 100%;
@@ -94,7 +98,7 @@ button {
     font-size: 14px;
 }
 
-button:hover {
+.btn:hover {
     background-color: #303030;
 }
 
@@ -156,9 +160,11 @@ button:hover {
     color: #ffffff;
     padding: 4px 4px;
     flex-shrink: 0;
-    min-width: 72px;
+    min-width: 60px;
     width: auto;
     height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 .delete-btn:hover {
@@ -171,11 +177,145 @@ button:hover {
     border: 1px solid rgba(0, 0, 0, 0.1);
     padding: 4px 4px;
     flex-shrink: 0;
-    min-width: 72px;
+    min-width: 60px;
     width: auto;
     height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 .edit-btn:hover {
     background-color: rgba(0, 0, 0, 0.99);
 }
+
+/* 自定义文件选择控件 */
+.file-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.file-picker input[type="file"] {
+    display: none;
+}
+.file-picker .file-btn {
+    padding: 6px 12px;
+    background: #e9ecef;
+    color: #333;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #d0d7de;
+    font-size: 14px;
+}
+.file-picker .file-btn:hover {
+    background: #dde3e8;
+}
+.file-picker .file-name {
+    color: #888;
+    font-size: 13px;
+}
+
+/* 主次按钮分组 */
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.button-row.primary {
+    justify-content: space-between;
+}
+.button-row.primary .btn-primary {
+    flex: 1 1 0;
+    min-width: 120px;
+}
+.button-row.secondary {
+    justify-content: flex-end;
+}
+.btn-primary {
+    padding: 10px 16px;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #000;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-primary:hover {
+    background-color: #303030;
+}
+.btn-secondary {
+    padding: 6px 12px;
+    background-color: #f3f4f6;
+    color: #333;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn-secondary:hover {
+    background-color: #e7e9ee;
+}
+
+/* 底部居中按钮容器 */
+.bottom-center {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0 12px;
+}
+.bottom-center > button {
+    max-width: 280px;
+}
+
+
+/* Toast: 顶部悬浮，不影响布局，允许多条 */
+#toastHost {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 90%;
+    max-width: calc(100% - 20px);
+    pointer-events: none; /* 不阻挡表单交互 */
+}
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #fff;
+    line-height: 1.4;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    pointer-events: auto; /* 自身可点关闭 */
+    word-break: break-word; /* 长文本自动换行，避免变形 */
+}
+.toast .msg {
+    flex: 1 1 auto;
+}
+/* 放大 Toast 图标尺寸并对齐 */
+.toast .icon {
+    font-size: 18px;         /* 比当前文字更大，增强可视性 */
+    line-height: 1;          /* 避免图标上下挤压 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;         /* 保持稳定宽度，避免抖动 */
+    margin-right: 2px;
+}
+.toast .close-btn {
+    margin-left: 8px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 14px;
+    flex: 0 0 auto;
+}
+.toast-success { background-color: #2e7d32; }  /* 绿 */
+.toast-info    { background-color: #1976d2; }  /* 蓝 */
+.toast-warning { background-color: #ed6c02; }  /* 黄橙 */
+.toast-error   { background-color: #d32f2f; }  /* 红 */
