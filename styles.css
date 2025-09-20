@@ -5,7 +5,9 @@ html, body {
 }
 
 body {
-    width: 380px;
+    width: 100%;
+    min-width: 320px;
+    max-width: 600px;
     padding: 10px;
     font-family: Arial, sans-serif;
     box-sizing: border-box;
@@ -54,14 +56,16 @@ h2 {
     font-size: 14px;
     height: 32px;
     line-height: 32px;
-    width: 320px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .input-field.input-color {
     padding: 2px 8px;
     height: 36px;
-    width: 338px;
+    width: 100%;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .input-field.input-color option {
@@ -94,11 +98,6 @@ button:hover {
     background-color: #303030;
 }
 
-.tips {
-    color: #AFAFAF;
-    text-align: center;
-    margin: 6px auto;
-}
 .group-list {
     height: auto;
     min-height: 100px;
@@ -118,7 +117,7 @@ button:hover {
     padding: 4px 12px;
     border-radius: 4px;
     margin-bottom: 5px;
-    color: #000; /* 默认文字颜色 */
+    color: #333333;
 }
 
 .group-item span {
@@ -130,6 +129,13 @@ button:hover {
     min-width: 40px;
 }
 
+.item-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
 .group-item.editing {
     border: 2px solid #2196F3;
     box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
@@ -137,10 +143,10 @@ button:hover {
 
 .item-buttons {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
-    gap: 5px;
-    width: 40%;
+    gap: 8px;
+    width: auto;
 }
 
 .delete-btn {
@@ -150,7 +156,8 @@ button:hover {
     color: #ffffff;
     padding: 4px 4px;
     flex-shrink: 0;
-    width: 45%;
+    min-width: 72px;
+    width: auto;
     height: 38px;
 }
 
@@ -164,24 +171,11 @@ button:hover {
     border: 1px solid rgba(0, 0, 0, 0.1);
     padding: 4px 4px;
     flex-shrink: 0;
-    width: 45%;
+    min-width: 72px;
+    width: auto;
     height: 38px;
 }
 
-.save-button {
-    height: 48px;
-    margin-top: 15px;
+.edit-btn:hover {
     background-color: rgba(0, 0, 0, 0.99);
-}
-
-.save-button:hover {
-    background-color: #303030;
-}
-
-.message {
-    color: #4CAF50;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 10px;
-    display: none;
 }

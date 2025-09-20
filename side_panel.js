@@ -1,65 +1,31 @@
 let currentEditItem = null; // 用于跟踪当前正在编辑的项
 
-// Chrome支持的标签组颜色映射
-const CHROME_COLORS = {
-    grey: '#DADCE0',
-    blue: '#8AB4F8',
-    red: '#F28B82',
-    yellow: '#FCD174',
-    green: '#81C995',
-    pink: '#FDA5CB',
-    purple: '#D3A0FF',
-    cyan: '#80D8D0'
-};
-
-// 颜色名称映射
-const COLOR_NAMES = {
-    grey: '灰色',
-    blue: '蓝色',
-    red: '红色',
-    yellow: '黄色',
-    green: '绿色',
-    pink: '粉色',
-    purple: '紫色',
-    cyan: '青色'
-};
-
-function normalizeColor(color) {
-    // 如果是Chrome颜色名称，返回对应的十六进制颜色
-    if (CHROME_COLORS[color]) {
-        return CHROME_COLORS[color];
-    }
-    // 如果是十六进制颜色，直接返回
-    if (typeof color === 'string' && color.startsWith('#')) {
-        return color;
-    }
-    return CHROME_COLORS.grey; // 默认返回灰色
-}
-
-function getChromeColorName(hexColor) {
-    // 根据十六进制颜色找到对应的Chrome颜色名称
-    for (const [name, hex] of Object.entries(CHROME_COLORS)) {
-        if (hex.toLowerCase() === hexColor.toLowerCase()) {
-            return name;
-        }
-    }
-    return 'grey'; // 默认返回灰色
-}
+/** 使用 shared/colors.js 提供的全局方法：isValidChromeColor, colorNameToHex */
 
 document.addEventListener('DOMContentLoaded', () => {
     loadGroups();
     
     document.getElementById('addGroup').addEventListener('click', () => {
-        const domain = document.getElementById('domain').value.trim();
+        const domainInput = document.getElementById('domain').value.trim();
         const groupName = document.getElementById('groupName').value.trim();
         const groupColor = document.getElementById('groupColor').value;
     
-        if (!domain || !groupName) {
+        if (!domainInput || !groupName) {
             alert('请填写域名和分组名称！');
             return;
         }
 
-        createGroupItem({ domain, groupName, color: groupColor });
+        const normDomain = domainInput.toLowerCase();
+        const exists = Array.from(document.querySelectorAll('.group-item')).some(
+            item => item.dataset.domain === normDomain
+        );
+        if (exists) {
+            alert('该域名规则已存在，请编辑现有项。');
+            return;
+        }
+
+        createGroupItem({ domain: normDomain, groupName, color: groupColor });
+        persistGroups();
         
         // 清空输入框
         document.getElementById('domain').value = '';
@@ -70,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('updateGroup').addEventListener('click', updateGroup);
     document.getElementById('cancelUpdate').addEventListener('click', exitEditMode);
 
-    document.getElementById('saveSettings').addEventListener('click', saveSettings);
+
 });
 
 function createGroupItem(group) {
@@ -78,19 +44,21 @@ function createGroupItem(group) {
     const groupItem = document.createElement('div');
     groupItem.className = 'group-item';
 
-    const normalizedColor = normalizeColor(group.color);
+    const normalizedColor = colorNameToHex(group.color);
+    const domainLower = (group.domain || '').trim().toLowerCase();
 
-    groupItem.dataset.domain = group.domain;
+    groupItem.dataset.domain = domainLower;
     groupItem.dataset.groupName = group.groupName;
-    groupItem.dataset.color = normalizedColor;
+    groupItem.dataset.colorName = group.color;
 
-    // 设置背景色和文字颜色
+    // 设置背景色
     groupItem.style.backgroundColor = normalizedColor;
-    groupItem.style.color = getContrastColor(normalizedColor);
 
     groupItem.innerHTML = `
-        <span class="group-name">${group.groupName}</span>
-        <span class="domain">${group.domain}</span>
+        <div class="item-left">
+            <span class="group-name">${group.groupName}</span>
+            <span class="domain">${domainLower}</span>
+        </div>
         <div class="item-buttons">
             <button class="edit-btn">编辑</button>
             <button class="delete-btn">删除</button>
@@ -105,6 +73,7 @@ function createGroupItem(group) {
     groupItem.querySelector('.delete-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         groupList.removeChild(groupItem);
+        persistGroups();
     });
 
     groupList.appendChild(groupItem);
@@ -123,7 +92,7 @@ function enterEditMode(item) {
     document.getElementById('groupName').value = item.dataset.groupName;
     
     // 将十六进制颜色转换为Chrome颜色名称
-    const chromeColorName = getChromeColorName(item.dataset.color);
+    const chromeColorName = item.dataset.colorName || 'grey';
     document.getElementById('groupColor').value = chromeColorName;
 
     document.getElementById('addGroup').classList.add('hidden');
@@ -149,52 +118,53 @@ function exitEditMode() {
 function updateGroup() {
     if (!currentEditItem) return;
 
-    const domain = document.getElementById('domain').value.trim();
+    const domainInput = document.getElementById('domain').value.trim();
     const groupName = document.getElementById('groupName').value.trim();
     const color = document.getElementById('groupColor').value;
 
-    if (!domain || !groupName) {
+    if (!domainInput || !groupName) {
         alert('请填写域名和分组名称！');
         return;
     }
 
+    const domain = domainInput.toLowerCase();
+
+    // 重复检测：允许当前编辑项保留相同域名，但禁止与其他项重复
+    const conflict = Array.from(document.querySelectorAll('.group-item')).some(
+        item => item !== currentEditItem && item.dataset.domain === domain
+    );
+    if (conflict) {
+        alert('已存在相同域名的规则，请修改域名或编辑已有项。');
+        return;
+    }
+
     // 将Chrome颜色名称转换为十六进制颜色用于显示
-    const hexColor = normalizeColor(color);
+    const hexColor = colorNameToHex(color);
 
     // 更新DOM元素的数据和外观
     currentEditItem.dataset.domain = domain;
     currentEditItem.dataset.groupName = groupName;
-    currentEditItem.dataset.color = hexColor;
+    currentEditItem.dataset.colorName = color;
 
     currentEditItem.style.backgroundColor = hexColor;
-    currentEditItem.style.color = getContrastColor(hexColor);
 
     currentEditItem.querySelector('.domain').textContent = domain;
     currentEditItem.querySelector('.group-name').textContent = groupName;
 
+    persistGroups();
     exitEditMode();
 }
 
-function saveSettings() {
+function persistGroups() {
     const groups = [];
     document.querySelectorAll('.group-item').forEach(item => {
-        // 将十六进制颜色转换为Chrome颜色名称进行存储
-        const chromeColorName = getChromeColorName(item.dataset.color);
         groups.push({
             domain: item.dataset.domain,
             groupName: item.dataset.groupName,
-            color: chromeColorName
+            color: item.dataset.colorName || 'grey'
         });
     });
-
-    chrome.storage.sync.set({ groups }, () => {
-        const message = document.getElementById('message');
-        message.textContent = '保存成功！';
-        message.style.display = 'block';
-        setTimeout(() => {
-            message.style.display = 'none';
-        }, 2000);
-    });
+    chrome.storage.sync.set({ groups });
 }
 
 function loadGroups() {
@@ -205,12 +175,3 @@ function loadGroups() {
     });
 }
 
-// 根据背景色计算合适的文字颜色（黑色或白色）
-function getContrastColor(hexColor) {
-    if (!hexColor) hexColor = '#999999';
-    const r = parseInt(hexColor.substr(1, 2), 16);
-    const g = parseInt(hexColor.substr(3, 2), 16);
-    const b = parseInt(hexColor.substr(5, 2), 16);
-    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-    return (yiq >= 128) ? '#000000' : '#FFFFFF';
-}
