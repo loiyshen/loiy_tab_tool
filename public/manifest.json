@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "芦艺标签页分组工具",
-  "version": "1.0",
-  "description": "浏览器标签页按域名自动分组工具",
+  "version": "1.0.0",
+  "description": "基于 Side Panel 的轻量级 Chrome 扩展：支持自定义多域名规则，实时自动整理和分组您的标签页。",
   "permissions": ["storage", "tabs", "tabGroups", "sidePanel"],
   "action": {
     "default_title": "打开工具侧边栏",

@@ -1,6 +1,6 @@
 {
   "name": "loiy-tab-tool",
-  "version": "1.4.0",
+  "version": "1.0.0",
   "private": true,
   "description": "基于 Side Panel 的轻量级 Chrome 扩展：支持自定义多域名规则，实时自动整理和分组您的标签页。",
   "author": "loiyshen",
