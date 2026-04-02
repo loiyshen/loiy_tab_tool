@@ -31,6 +31,7 @@ function setMode(mode) {
     const toggleBtn = document.getElementById('toggleImportExportBtn');
     if (!panel || !form || !toggleBtn) return;
     if (mode === 'io') {
+        exitEditMode();
         panel.classList.remove('hidden');
         form.classList.add('hidden');
         toggleBtn.textContent = '切换到添加/编辑模式';
@@ -75,9 +76,9 @@ function parseAndMergeGroups(jsonObj) {
     if (input.length > 200) {
         throw new Error('导入条目超过 200 条限制');
     }
-    const byDomain = new Map();
+    let finalGroups = [];
     document.querySelectorAll('.group-item').forEach(item => {
-        byDomain.set(item.dataset.domain, {
+        finalGroups.push({
             domain: item.dataset.domain,
             groupName: item.dataset.groupName,
             color: item.dataset.colorName || 'grey'
@@ -86,21 +87,32 @@ function parseAndMergeGroups(jsonObj) {
     for (const g of input) {
         if (!g || typeof g !== 'object') { out.fixed++; continue; }
         let { domain, groupName, color } = g;
-        if (typeof domain !== 'string' || typeof groupName !== 'string' || typeof color !== 'string') { out.fixed++; continue; }
-        domain = domain.trim().toLowerCase().replace(/^\.+/, '');
+        if (typeof domain !== 'string' || typeof groupName !== 'string') { out.fixed++; continue; }
+        if (typeof color !== 'string') { color = 'grey'; out.fixed++; }
+        
+        const domainList = domain.split(',').map(d => d.trim().toLowerCase().replace(/^\.+/, '')).filter(Boolean);
+        if (domainList.length === 0 || domainList.length > 3) { out.fixed++; continue; }
+        
+        domain = domainList.join(',');
+        if (domain.length > 128) { out.fixed++; continue; }
         groupName = groupName.trim();
-        if (!domain || !groupName) { out.fixed++; continue; }
-        if (domain.length > 64) { out.fixed++; continue; }
-        if (groupName.length > 24) { out.fixed++; continue; }
+        if (!groupName || groupName.length > 24) { out.fixed++; continue; }
         if (!isValidChromeColor(color)) { color = 'grey'; out.fixed++; }
-        if (byDomain.has(domain)) {
-            out.overwritten++;
-        } else {
-            out.added++;
-        }
-        byDomain.set(domain, { domain, groupName, color });
+        
+        const newDomainsSet = new Set(domainList);
+        let hasOverlap = false;
+
+        finalGroups = finalGroups.filter( existing => {
+           const existingDomains = (existing.domain || '').split(',');
+           const localOverlap = existingDomains.some(d => newDomainsSet.has(d));
+           if (localOverlap) hasOverlap = true;
+           return !localOverlap;
+        });
+
+        if (hasOverlap) { out.overwritten++; } else { out.added++; }
+        finalGroups.push({ domain, groupName, color });
     }
-    out.groups = Array.from(byDomain.values());
+    out.groups = finalGroups;
     return out;
 }
 
@@ -188,8 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast({ type: 'error', text: '请填写域名和分组名称！' });
             return;
         }
-        if (domainInput.length > 64) {
-            showToast({ type: 'error', text: '域名长度超过 64 字符' });
+        if (domainInput.length > 128) {
+            showToast({ type: 'error', text: '域名总长度超过 128 字符' });
             return;
         }
         if (groupName.length > 24) {
@@ -197,12 +209,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const normDomain = domainInput.toLowerCase();
-        const exists = Array.from(document.querySelectorAll('.group-item')).some(
-            item => item.dataset.domain === normDomain
+        const domainList = domainInput.split(',').map(d => d.trim().toLowerCase().replace(/^\.+/, '')).filter(Boolean);
+        if (domainList.length === 0) {
+            showToast({ type: 'error', text: '域名无效' });
+            return;
+        }
+        if (domainList.length > 3) {
+            showToast({ type: 'error', text: '每个规则最多只能配置 3 个域名' });
+            return;
+        }
+
+        const normDomain = domainList.join(',');
+        const newDomainsSet = new Set(domainList);
+        const conflict = Array.from(document.querySelectorAll('.group-item')).some(
+            item => (item.dataset.domain || '').split(',').some(d => newDomainsSet.has(d))
         );
-        if (exists) {
-            showToast({ type: 'warning', text: '该域名规则已存在，请编辑现有项。' });
+        if (conflict) {
+            showToast({ type: 'warning', text: '存在冲突！部分域名已在其他规则中配置。' });
             return;
         }
 
@@ -238,14 +261,17 @@ function createGroupItem(group) {
 
     groupItem.innerHTML = `
         <div class="item-left">
-            <span class="group-name">${group.groupName}</span>
-            <span class="domain">${domainLower}</span>
+            <span class="group-name"></span>
+            <span class="domain"></span>
         </div>
         <div class="item-buttons">
             <button class="edit-btn">编辑</button>
             <button class="delete-btn">删除</button>
         </div>
     `;
+
+    groupItem.querySelector('.group-name').textContent = group.groupName;
+    groupItem.querySelector('.domain').textContent = domainLower;
 
     groupItem.querySelector('.edit-btn').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -310,8 +336,8 @@ function updateGroup() {
         showToast({ type: 'error', text: '请填写域名和分组名称！' });
         return;
     }
-    if (domainInput.length > 64) {
-        showToast({ type: 'error', text: '域名长度超过 64 字符' });
+    if (domainInput.length > 128) {
+        showToast({ type: 'error', text: '域名总长度超过 128 字符' });
         return;
     }
     if (groupName.length > 24) {
@@ -319,14 +345,25 @@ function updateGroup() {
         return;
     }
 
-    const domain = domainInput.toLowerCase();
+    const domainList = domainInput.split(',').map(d => d.trim().toLowerCase().replace(/^\.+/, '')).filter(Boolean);
+    if (domainList.length === 0) {
+        showToast({ type: 'error', text: '域名无效' });
+        return;
+    }
+    if (domainList.length > 3) {
+        showToast({ type: 'error', text: '每个规则最多只能配置 3 个域名' });
+        return;
+    }
+
+    const domain = domainList.join(',');
+    const newDomainsSet = new Set(domainList);
 
     // 重复检测：允许当前编辑项保留相同域名，但禁止与其他项重复
     const conflict = Array.from(document.querySelectorAll('.group-item')).some(
-        item => item !== currentEditItem && item.dataset.domain === domain
+        item => item !== currentEditItem && (item.dataset.domain || '').split(',').some(d => newDomainsSet.has(d))
     );
     if (conflict) {
-        showToast({ type: 'warning', text: '已存在相同域名的规则，请修改域名或编辑已有项。' });
+        showToast({ type: 'warning', text: '存在冲突！部分域名已在其他规则中配置。' });
         return;
     }
 
@@ -443,8 +480,16 @@ async function fillDomainFromActiveTab() {
         }
         const domainInput = document.getElementById('domain');
         if (domainInput) {
-            domainInput.value = domain;
-            showToast({ type: 'success', text: `已获取域名：${domain}` });
+            let current = domainInput.value.split(',').map(d => d.trim()).filter(Boolean);
+            if (current.includes(domain)) {
+                showToast({ type: 'info', text: '当前域名已在输入框中' });
+            } else if (current.length >= 3) {
+                showToast({ type: 'warning', text: '最多只能包含三个域名' });
+            } else {
+                current.push(domain);
+                domainInput.value = current.join(',');
+                showToast({ type: 'success', text: `已获取并填入域名：${domain}` });
+            }
         }
     } catch (e) {
         console.error(e);

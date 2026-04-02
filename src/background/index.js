@@ -25,8 +25,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         const result = await chrome.storage.sync.get(['groups']);
         const groups = result.groups || [];
 
-        // 查找匹配的域名设置（后缀+边界匹配）
-        const groupSetting = groups.find(g => matchesDomain(domain, g.domain));
+        // 查找匹配的域名设置（支持多个逗号分隔域名）
+        const groupSetting = groups.find(g => {
+            const domainList = (g.domain || '').split(',').map(d => d.trim()).filter(Boolean);
+            return domainList.some(d => matchesDomain(domain, d));
+        });
         if (!groupSetting) return;
 
         // 获取当前窗口的所有标签组
